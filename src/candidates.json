@@ -1,0 +1,23 @@
+[
+  {
+    "id": 0,
+    "name": "Candidate 1",
+    "picture": "images/candidate1.jpg",
+    "age": 3,
+    "policy": "世界和平"
+  },
+  {
+    "id": 1,
+    "name": "Candidate 2",
+    "picture": "images/candidate2.jpg",
+    "age": 3,
+    "policy": "餐餐溫飽"
+  },
+  {
+    "id": 2,
+    "name": "Candidate 3",
+    "picture": "images/candidate3.jpg",
+    "age": 2,
+    "policy": "快樂生活"
+  }
+]
