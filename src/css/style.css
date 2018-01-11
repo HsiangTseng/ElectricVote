@@ -1,5 +1,19 @@
-#petsRow {
-  background: linear-gradient(#fdcf83, #a7772a);
+body {
+  padding-top: 20px;
+}
+
+.container.panel {
+  border: none;
+}
+
+.panel > #title.panel-heading {
+  background: linear-gradient(#fbd773, #eac150);
+  border-radius: 10px 10px 0 0;
+}
+
+.panel > #petsRow.panel-body {
+  background: linear-gradient(#fdcf83, #e4c15d);
   padding: 20px 10px;
-  border-radius: 10px;
+  box-shadow: 5px 10px 10px grey;
+  border-radius: 0 0 10px 10px;
 }
