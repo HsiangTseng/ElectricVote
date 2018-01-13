@@ -14,6 +14,7 @@ App = {
         petTemplate.find('.pet-age').text(data[i].age);
         petTemplate.find('.pet-policy').text(data[i].policy);
         petTemplate.find('.btn-adopt').attr('data-id', data[i].id);
+        petTemplate.find('.btn-return').attr('data-id', data[i].id);
 
         petsRow.append(petTemplate.html());
       }
@@ -53,6 +54,7 @@ App = {
 
   bindEvents: function() {
     $(document).on('click', '.btn-adopt', App.handleAdopt);
+    $(document).on('click', '.btn-return', App.getReturn);
   },
 
   markAdopted: function(adopters, account) {
@@ -65,21 +67,35 @@ App = {
     }).then(function(adopters) {
       for (i = 0; i < adopters.length; i++) {
         if (adopters[i] !== '0x0000000000000000000000000000000000000000') {
-          alert("vote success");
-
-          var p = adoptionInstance.getToto.call();
-          console.log(p);
-          /*
-          .then(function(total){
-            alert("total");
-          })
-          */
+          //alert("vote success");
           // $('.panel-pet').eq(i).find('button').text('Success').attr('disabled', true);
         }
       }
     }).catch(function(err) {
       console.log(err.message);
     });
+  },
+
+  getReturn: function(event){
+    event.preventDefault();
+
+    var petId = parseInt($(event.target).data('id'));
+
+    var adoptionInstance;
+
+
+    App.contracts.Adoption.deployed().then(function(instance) {
+      adoptionInstance = instance;
+
+      return adoptionInstance.getToto.call();
+    }).then(function(returns) {
+      alert(returns);
+      console.log(returns);
+      //console.log(returns);
+    }).catch(function(err){
+      console.log(err.message);
+    });
+
   },
 
   handleAdopt: function(event) {
