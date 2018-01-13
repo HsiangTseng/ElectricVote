@@ -13,13 +13,14 @@ contract Adoption {
     require(petId >= 0 && petId <= 15);
     adopters[petId] = msg.sender;
     //tickets[msg.sender] -= 60;
-    //total[petId] = 0;
+    total[petId] = 0;
     return petId;
   }
 
   // ABC
-  function getToto() public returns (address[16]) {
-    return adopters;
+  function getToto() public returns (int) {
+    //return total[petId];
+    return 53;
     }
 
   // Retrieving the adopters
