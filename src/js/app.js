@@ -1,134 +1,82 @@
-App = {
-  web3Provider: null,
-  contracts: {},
-
-  init: function() {
-    // Load candidates.
-    $.getJSON('../candidates.json', function(data) {
-      var petsRow = $('#petsRow');
-      var petTemplate = $('#petTemplate');
-
-      for (i = 0; i < data.length; i ++) {
-        petTemplate.find('.panel-title').text(data[i].name);
-        petTemplate.find('img').attr('src', data[i].picture);
-        petTemplate.find('.pet-age').text(data[i].age);
-        petTemplate.find('.pet-policy').text(data[i].policy);
-        petTemplate.find('.btn-adopt').attr('data-id', data[i].id);
-        petTemplate.find('.btn-return').attr('data-id', data[i].id);
-
-        petsRow.append(petTemplate.html());
-      }
-    });
-
-    return App.initWeb3();
-  },
-
-  initWeb3: function() {
-    // Is there is an injected web3 instance?
-    if (typeof web3 !== 'undefined') {
-      App.web3Provider = web3.currentProvider;
-    } else {
-      // If no injected web3 instance is detected, fallback to the TestRPC
-      App.web3Provider = new Web3.providers.HttpProvider('http://localhost:8545');
-    }
-    web3 = new Web3(App.web3Provider);
-
-    return App.initContract();
-  },
-
-  initContract: function() {
-    $.getJSON('Adoption.json', function(data) {
-      // Get the necessary contract artifact file and instantiate it with truffle-contract
-      var AdoptionArtifact = data;
-      App.contracts.Adoption = TruffleContract(AdoptionArtifact);
-
-      // Set the provider for our contract
-      App.contracts.Adoption.setProvider(App.web3Provider);
-
-      // Use our contract to retrieve and mark the adopted pets
-      return App.markAdopted();
-    });
-
-    return App.bindEvents();
-  },
-
-  bindEvents: function() {
-    $(document).on('click', '.btn-adopt', App.handleAdopt);
-    $(document).on('click', '.btn-return', App.getReturn);
-  },
-
-  markAdopted: function(adopters, account) {
-    var adoptionInstance;
-
-    App.contracts.Adoption.deployed().then(function(instance) {
-      adoptionInstance = instance;
-
-      return adoptionInstance.getAdopters.call();
-    }).then(function(adopters) {
-      for (i = 0; i < adopters.length; i++) {
-        if (adopters[i] !== '0x0000000000000000000000000000000000000000') {
-          //alert("vote success");
-          // $('.panel-pet').eq(i).find('button').text('Success').attr('disabled', true);
+class App {
+  constructor() {
+    this.web3Provider = null;
+    this.contracts = {};
+  }
+  
+  async init() {
+    this.initView();
+    this.initWeb3();
+    this.initContract();
+    this.bindEvents();
+  }
+  
+  async initView() {
+    return new Promise((res, rej) => {
+      // Load candidates.
+      $.getJSON('../candidates.json', function(data) {
+        let candidatesRow = $('#candidatesRow');
+        let candidateTemplate = $('#candidateTemplate');
+        //
+        for (let i = 0; i < data.length; i ++) {
+          candidateTemplate.find('.panel-title').text(data[i].name);
+          candidateTemplate.find('img').attr('src', data[i].picture);
+          candidateTemplate.find('.candidate-age').text(data[i].age);
+          candidateTemplate.find('.candidate-policy').text(data[i].policy);
+          candidateTemplate.find('.candidate-adopt').attr('data-id', data[i].id);
+          //
+          candidatesRow.append(candidateTemplate.html());
         }
-      }
-    }).catch(function(err) {
-      console.log(err.message);
-    });
-  },
-
-  getReturn: function(event){
-    event.preventDefault();
-
-    var petId = parseInt($(event.target).data('id'));
-
-    var adoptionInstance;
-
-
-    App.contracts.Adoption.deployed().then(function(instance) {
-      adoptionInstance = instance;
-
-      return adoptionInstance.getToto.call();
-    }).then(function(returns) {
-      alert(returns);
-      console.log(returns);
-      //console.log(returns);
-    }).catch(function(err){
-      console.log(err.message);
-    });
-
-  },
-
-  handleAdopt: function(event) {
-    event.preventDefault();
-
-    var petId = parseInt($(event.target).data('id'));
-
-    var adoptionInstance;
-
-    web3.eth.getAccounts(function(error, accounts) {
-      if (error) {
-        console.log(error);
-      }
-
-      var account = accounts[0];
-
-      App.contracts.Adoption.deployed().then(function(instance) {
-        adoptionInstance = instance;
-
-        // Execute adopt as a transaction by sending account
-        return adoptionInstance.adopt(petId, {from: account});
-      }).then(function(result) {
-        return App.markAdopted();
-      }).catch(function(err) {
-        console.log(err.message);
+      });
+    })
+  }
+  
+  async initWeb3() {
+    if (typeof web3 !== 'undefined') {
+      this.web3Provider = web3.currentProvider;
+    } else {
+      this.web3Provider = new Web3.providers.HttpProvider('http://localhost:8545');
+    }
+    web3 = new Web3(this.web3Provider);
+  }
+  
+  async initContract() {
+    return new Promise((res, rej) => {
+      $.getJSON('Vote.json', data => {
+        this.contracts.Vote = TruffleContract(data);
+        this.contracts.Vote.setProvider(this.web3Provider);
       });
     });
   }
+  
+  bindEvents() {
+    $(document).on('click', '.btn-vote', this.handleVote.bind(this));
+  }
+  
+  async handleVote(event) {
+    event.preventDefault();
+    let id = parseInt($(event.target).data('id'));
+    console.log('handleVote', id);
+    await this.voteCandidate(id);
+  }
+  
+  async voteCandidate(index) {
+    let instance = await this.contracts.Vote.deployed();
+    await instance.voteCandidate(index, {from: web3.eth.accounts[0], gas: 100000}); 
+  }
+  
+  async getCurrentVote(index) {
+    let instance = await this.contracts.Vote.deployed();
+    let voteCount = await instance.getCurrentVote(index);
+    return voteCount;
+  }
+}
 
-};
+var app;
 
 $(function() {
   $(window).load(function() {
-    App.init();
+    app = new App();
+    app.init();
   });
 });

@@ -20,7 +20,7 @@ contract Adoption {
   // ABC
   function getToto() public returns (int) {
     //return total[petId];
-    return 53;
+    return 43;
     }
 
   // Retrieving the adopters
