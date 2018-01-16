@@ -11,7 +11,7 @@ body {
   border-radius: 10px 10px 0 0;
 }
 
-.panel > #petsRow.panel-body {
+.panel > #candidatesRow.panel-body {
   background: linear-gradient(#fdcf83, #e4c15d);
   padding: 20px 10px;
   box-shadow: 5px 10px 10px grey;
